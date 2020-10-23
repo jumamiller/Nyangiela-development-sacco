@@ -6,6 +6,8 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Checkout;
+use App\Models\Account;
 
 class User extends Authenticatable
 {
@@ -17,9 +19,11 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'first_name',
+        'last_name',
+        'username',
+        'phone_number',
+        'PIN',
     ];
 
     /**
@@ -28,7 +32,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password',
+        'PIN',
         'remember_token',
     ];
 
@@ -38,6 +42,19 @@ class User extends Authenticatable
      * @var array
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        'first_name' => 'string',
+        'last_name' =>'string',
+        'phone_number'=>'string',
+        'PIN'       =>'string',
+        'username'  =>'string',
     ];
+    /**
+     * define relationships
+     */
+    public function checkout(){
+        return $this->hasOne('Checkout');
+    }
+    public function account(){
+        return $this->hasOne('Account');
+    }
 }
