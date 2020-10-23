@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCheckoutTable extends Migration
+class CreateSessionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,13 @@ class CreateCheckoutTable extends Migration
      */
     public function up()
     {
-        Schema::create('checkout', function (Blueprint $table) {
+        Schema::create('sessions', function (Blueprint $table) {
             $table->increments('id');
-            $table->boolean('status')->default(0);
+            $table->string('at_session_id')->nullable();
+            $table->tinyInteger('session_level')->nullable();
             $table->string('phone_number')->nullable();
-            $table->double('amount')->nullable();
+            $table->timestamps();
+            //$table->softDeletes();
         });
     }
 
@@ -28,8 +30,6 @@ class CreateCheckoutTable extends Migration
      */
     public function down()
     {
-        Schema::table('checkout', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('sessions');
     }
 }

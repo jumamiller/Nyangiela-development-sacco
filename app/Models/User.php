@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
+//use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Checkout;
 use App\Models\Account;
 
-class User extends Authenticatable
+class User extends Model
 {
-    use HasFactory, Notifiable;
-
+    use HasFactory;
     /**
      * The attributes that are mass assignable.
      *
@@ -25,9 +23,7 @@ class User extends Authenticatable
         'phone_number',
         'PIN',
     ];
-
-    /**
-     * The attributes that should be hidden for arrays.
+    /** The attributes that should be hidden for arrays.
      *
      * @var array
      */
@@ -48,6 +44,7 @@ class User extends Authenticatable
         'PIN'       =>'string',
         'username'  =>'string',
     ];
+
     /**
      * define relationships
      */
@@ -57,4 +54,6 @@ class User extends Authenticatable
     public function account(){
         return $this->hasOne('Account');
     }
+
+
 }

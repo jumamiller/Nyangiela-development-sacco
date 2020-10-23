@@ -1,10 +1,10 @@
-s<?php
+<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSessionTable extends Migration
+class CreateCheckoutsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,13 @@ class CreateSessionTable extends Migration
      */
     public function up()
     {
-        Schema::create('session', function (Blueprint $table) {
+        Schema::create('checkouts', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('at_session_id')->nullable();
-            $table->tinyInteger('session_level')->nullable();
+            $table->boolean('status')->default(0);
             $table->string('phone_number')->nullable();
+            $table->double('amount')->nullable();
+            //$table->softDeletes();
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -30,6 +30,6 @@ class CreateSessionTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('session');
+        Schema::dropIfExists('checkouts');
     }
 }

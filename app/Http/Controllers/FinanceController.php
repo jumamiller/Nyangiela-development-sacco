@@ -54,14 +54,14 @@ class FinanceController extends Controller
     {
         //1.Check the level of the user from the DB and retain default level if none is found for this session
         $new_level=Session::where('phone_number',$this->phone_number)->pluck('session_level')->first();
-        dd($new_level);
+        //dd($new_level);
 
         if(!empty($new_level)){
             $this->level=$new_level;
         }
         //2.Check if the incoming phone number is registered(kind of login)
         $visiting_user=User::where('phone_number','LIKE','%'.$this->phone_number.'%')->limit(1)->count();
-        dd($visiting_user);
+        //dd($visiting_user);
 
         //3. Check if the user is available (yes)->Serve the menu(login user-finance based system for security); (no)->Register the user
         if($visiting_user>0)
@@ -79,7 +79,7 @@ class FinanceController extends Controller
     public function login()
     {
         //5.login the user then update the level
-        dd($this->level);
+        //dd($this->level);
         switch ($this->level)
         {
             case 0:
@@ -180,7 +180,7 @@ class FinanceController extends Controller
             case 2:
                 //this level,the user has provided his/her firstname
                 $firstname=trim(htmlspecialchars($this->user_response));
-                if((!empty($firstname)) && (!is_numeric($firstname))){
+                if((!empty($firstname)) || (!is_numeric($firstname))){
                     //update firstname
                     User::where('phone_number','=',$this->phone_number)->update(['first_name'=>$firstname]);
                     //display the next input,middle name
@@ -200,7 +200,7 @@ class FinanceController extends Controller
             case 3:
                 $middle_name=trim(htmlspecialchars($this->user_response));
 
-                if((!empty($middle_name)) && (!is_numeric($middle_name)))
+                if((!empty($middle_name)) || (!is_numeric($middle_name)))
                 {
                     //update lastname
                     User::where('phone_number','=',$this->phone_number)->update(['last_name'=>$middle_name]);
@@ -221,7 +221,7 @@ class FinanceController extends Controller
             case 4:
                 $lastname=trim(htmlspecialchars($this->user_response));
 
-                if((!empty($lastname)) && (!is_numeric($lastname)))
+                if((!empty($lastname)) || (!is_numeric($lastname)))
                 {
                     //update lastname
                     User::where('phone_number','=',$this->phone_number)->update(['last_name'=>$lastname]);
@@ -241,10 +241,10 @@ class FinanceController extends Controller
                 }
             case 5:
                 $username=trim(htmlspecialchars($this->user_response));
-                if((!empty($username)) && (!is_numeric($username)))
+                if((!empty($username)) || (!is_numeric($username)))
                 {
                     //update username
-                    User::where('phone_number','=',$this->phone_number)->update(['username'=>$usernamey]);
+                    User::where('phone_number','=',$this->phone_number)->update(['username'=>$username]);
                     //display the next input,username
                     $this->PIN();
                     //update the level to 6
@@ -261,7 +261,7 @@ class FinanceController extends Controller
                 }
             case 6:
                 $PIN=trim(htmlspecialchars($this->user_response));
-                if((!empty($PIN)) && (is_numeric($PIN)))
+                if((!empty($PIN)) || (is_numeric($PIN)))
                 {
                     //update PIN
                     User::where('phone_number','=',$this->phone_number)->update(['username'=>$PIN]);
