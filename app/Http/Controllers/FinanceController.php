@@ -59,15 +59,16 @@ class FinanceController extends Controller
         if(!empty($new_level)){
             $this->level=$new_level;
         }
+        //dd($this->level);
         //2.Check if the incoming phone number is registered(kind of login)
-        $visiting_user=User::where('phone_number','LIKE','%'.$this->phone_number.'%')->limit(1)->count();
+        $visiting_user=User::whereNotNull('PIN')->count();
         //dd($visiting_user);
 
         //3. Check if the user is available (yes)->Serve the menu(login user-finance based system for security); (no)->Register the user
         if($visiting_user>0)
         {
             //let the user login to proceed
-            $this->login();
+            //$this->login();
         }
         else
         {
@@ -124,6 +125,7 @@ class FinanceController extends Controller
     }
     public function user_registration()
     {
+
         //4.a completely new user visits our ussd.Register the user
         switch ($this->level)
         {
@@ -148,10 +150,9 @@ class FinanceController extends Controller
                         //display the registration form
                         $this->new_user_welcome_screen();
                         break;
-                    default:
-                        //do something here...
                 }
                 break;
+
             case 1:
                 switch ($this->user_response)
                 {
@@ -206,7 +207,7 @@ class FinanceController extends Controller
                 if((!empty($middle_name)) || (!is_numeric($middle_name)))
                 {
                     //update lastname
-                    User::where('phone_number','=',$this->phone_number)->update(['last_name'=>$middle_name]);
+                    User::where('phone_number','=',$this->phone_number)->update(['middle_name'=>$middle_name]);
                     //display the next input,username
                     $this->lastname();
                     //update the level to 4
@@ -216,7 +217,7 @@ class FinanceController extends Controller
                 {
                     //invalid middle name
                     $this->screen_response="Invalid middle name,try again\n";
-                    $this->header;
+                    echo $this->header;
                     $this->ussd_proceed($this->screen_response);
                     //demote user to level 2
                     Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>2]);
@@ -270,7 +271,7 @@ class FinanceController extends Controller
                 if(!empty($PIN))
                 {
                     //update PIN
-                    User::where('phone_number','=',$this->phone_number)->update(['username'=>$PIN]);
+                    User::where('phone_number','=',$this->phone_number)->update(['PIN'=>$PIN]);
                     //display the main menu(demote user to level 2
                     Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>2]);
                 }

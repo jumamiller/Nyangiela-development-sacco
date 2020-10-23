@@ -19,6 +19,7 @@ class User extends Model
     protected $fillable = [
         'first_name',
         'last_name',
+        'middle_name',
         'username',
         'phone_number',
         'PIN',
