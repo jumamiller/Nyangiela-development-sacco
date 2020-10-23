@@ -261,7 +261,7 @@ class FinanceController extends Controller
                 }
             case 6:
                 $PIN=trim(htmlspecialchars($this->user_response));
-                if((!empty($PIN)) || (is_numeric($PIN)))
+                if(!empty($PIN))
                 {
                     //update PIN
                     User::where('phone_number','=',$this->phone_number)->update(['username'=>$PIN]);
@@ -270,8 +270,8 @@ class FinanceController extends Controller
                 }
                 else
                 {
-                    //invalid PIN
-                    $this->screen_response="Invalid PIN,try again\n";
+                    //no pin provided
+                    $this->screen_response="Enter your PIN\n";
                     $this->header;
                     $this->ussd_proceed($this->screen_response);
                     //demote user to level 5
