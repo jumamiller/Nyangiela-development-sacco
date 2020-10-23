@@ -76,6 +76,51 @@ class FinanceController extends Controller
         }
 
     }
+    public function login()
+    {
+        //5.login the user then update the level
+        dd($this->level);
+        switch ($this->level)
+        {
+            case 0:
+                switch ($this->user_response)
+                {
+                    case "":
+                        //display get login credentials
+                        $this->login_username();
+                        Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>1]);
+                        break;
+                    default:
+                        //sth happens
+                }
+            case 1:
+                $username=strtolower(trim(htmlspecialchars($this->user_response)));
+                if(User::where('username','=',$username)->limit(1)->count()){
+                    //if username exists
+                    $this->PIN();
+                    //update the level
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>2]);
+                }
+                else
+                {
+                    $this->screen_response="Invalid username,try again\n";
+                    //demote the user to level 0
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>0]);
+                }
+                break;
+
+            case 2:
+                $personal_identifier=strtolower(trim(htmlspecialchars($this->screen_response)));
+                if(User::where('PIN','=',$personal_identifier)->count()){
+                    //if login auth success,display main menu and update level
+                    $this->display_NDS_main_menu();
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>3]);
+                }
+                break;
+            default:
+                //do sth
+        }
+    }
     public function user_registration()
     {
         //4.a completely new user visits our ussd.Register the user
@@ -134,8 +179,111 @@ class FinanceController extends Controller
                 }
             case 2:
                 //this level,the user has provided his/her firstname
-                $firstname=
+                $firstname=trim(htmlspecialchars($this->user_response));
+                if((!empty($firstname)) && (!is_numeric($firstname))){
+                    //update firstname
+                    User::where('phone_number','=',$this->phone_number)->update(['first_name'=>$firstname]);
+                    //display the next input,middle name
+                    $this->middle_name();
+                    //update the level to 3
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>3]);
+                }
+                else
+                {
+                    //invalid first name input
+                    $this->screen_response="Invalid first name,try again to proceed\n";
+                    $this->header;
+                    $this->ussd_proceed($this->screen_response);
+                    //demote user to level 1
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>1]);
+                }
+            case 3:
+                $middle_name=trim(htmlspecialchars($this->user_response));
+
+                if((!empty($middle_name)) && (!is_numeric($middle_name)))
+                {
+                    //update lastname
+                    User::where('phone_number','=',$this->phone_number)->update(['last_name'=>$middle_name]);
+                    //display the next input,username
+                    $this->lastname();
+                    //update the level to 4
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>4]);
+                }
+                else
+                {
+                    //invalid middle name
+                    $this->screen_response="Invalid middle name,try again\n";
+                    $this->header;
+                    $this->ussd_proceed($this->screen_response);
+                    //demote user to level 2
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>2]);
+                }
+            case 4:
+                $lastname=trim(htmlspecialchars($this->user_response));
+
+                if((!empty($lastname)) && (!is_numeric($lastname)))
+                {
+                    //update lastname
+                    User::where('phone_number','=',$this->phone_number)->update(['last_name'=>$lastname]);
+                    //display the next input,username
+                    $this->username();
+                    //update the level to 4
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>5]);
+                }
+                else
+                {
+                    //invalid last name
+                    $this->screen_response="Invalid last name,try again\n";
+                    $this->header;
+                    $this->ussd_proceed($this->screen_response);
+                    //demote user to level 2
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>3]);
+                }
+            case 5:
+                $username=trim(htmlspecialchars($this->user_response));
+                if((!empty($username)) && (!is_numeric($username)))
+                {
+                    //update username
+                    User::where('phone_number','=',$this->phone_number)->update(['username'=>$usernamey]);
+                    //display the next input,username
+                    $this->PIN();
+                    //update the level to 6
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>6]);
+                }
+                else
+                {
+                    //invalid username
+                    $this->screen_response="Invalid username,try again\n";
+                    $this->header;
+                    $this->ussd_proceed($this->screen_response);
+                    //demote user to level 4
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>4]);
+                }
+            case 6:
+                $PIN=trim(htmlspecialchars($this->user_response));
+                if((!empty($PIN)) && (is_numeric($PIN)))
+                {
+                    //update PIN
+                    User::where('phone_number','=',$this->phone_number)->update(['username'=>$PIN]);
+                    //display the main menu(demote user to level 2
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>2]);
+                }
+                else
+                {
+                    //invalid PIN
+                    $this->screen_response="Invalid PIN,try again\n";
+                    $this->header;
+                    $this->ussd_proceed($this->screen_response);
+                    //demote user to level 5
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>5]);
+                }
+            default:
+                //do sth here
         }
+    }
+    public function middle_name(){
+        $this->screen_response="Enter your middle name\n";
+        $this->ussd_proceed($this->screen_response);
     }
     public function firstname()
     {
@@ -154,7 +302,7 @@ class FinanceController extends Controller
     }
     public function PIN()
     {
-        $this->screen_response="Enter your email address\n";
+        $this->screen_response="Enter your PIN\n";
         $this->ussd_proceed($this->screen_response);
     }
     public function about_us(){
@@ -182,51 +330,7 @@ class FinanceController extends Controller
         $this->header;
         $this->ussd_proceed($this->screen_response);
     }
-    public function login()
-    {
-        //5.login the user then update the level
-        dd($this->level);
-        switch ($this->level)
-        {
-            case 0:
-                switch ($this->user_response)
-                {
-                    case "":
-                        //display get login credentials
-                        $this->username();
-                        Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>1]);
-                        break;
-                    default:
-                        //sth happens
-                }
-            case 1:
-                $username=strtolower(trim(htmlspecialchars($this->user_response)));
-                if(User::where('username','=',$username)->limit(1)->count()){
-                    //if username exists
-                    $this->PIN();
-                    //update the level
-                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>2]);
-                }
-                else
-                {
-                    $this->screen_response="Invalid username,try again\n";
-                    //demote the user to level 0
-                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>0]);
-                }
-                break;
 
-            case 2:
-                $personal_identifier=strtolower(trim(htmlspecialchars($this->screen_response)));
-                if(User::where('PIN','=',$personal_identifier)->count()){
-                    //if login auth success,display main menu and update level
-                    $this->display_NDS_main_menu();
-                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>3]);
-                }
-                break;
-            default:
-                //do sth
-        }
-    }
     public function display_NDS_main_menu()
     {}
     public function ussd_proceed($proceed)
@@ -237,16 +341,11 @@ class FinanceController extends Controller
     {
         echo "END $finish";
     }
-    public function username()
+    public function login_username()
     {
         $this->screen_response="<strong>Login to access your NDS account\n";
         $this->screen_response.="Enter your username\n";
         $this->ussd_proceed($this->screen_response);
-    }
-    public function PIN()
-    {
-        $this->screen_response="Enter your PIN\n";
-        return $this->ussd_proceed($this->screen_response);
     }
     public function account_enquiries(): void
     {}
