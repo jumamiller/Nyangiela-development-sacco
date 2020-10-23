@@ -97,7 +97,8 @@ class FinanceController extends Controller
                 break;
             case 1:
                 $username=trim(htmlspecialchars($this->user_response));
-                if(User::where('username','=',$username)->limit(1)->count()){
+                $query_username=User::where('phone_number',$this->phone_number)->limit(1)->pluck('username')->first();
+                if($query_username==$username){
                     //if username exists
                     $this->PIN();
                     //update the level
@@ -106,17 +107,29 @@ class FinanceController extends Controller
                 else
                 {
                     $this->screen_response="Invalid username,try again\n";
+                    $this->ussd_proceed($this->screen_response);
                     //demote the user to level 0
-                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>0]);
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>1]);
                 }
                 break;
 
             case 2:
-                $personal_identifier=trim(htmlspecialchars($this->screen_response));
-                if(User::where('PIN','=',$personal_identifier)->count()){
+                $personal_identifier=$this->screen_response;
+                //select stmt
+                $user_pin=User::where('phone_number','=',$this->phone_number)->pluck('PIN')->first();
+                dd($personal_identifier);
+
+                if($user_pin==$personal_identifier){
                     //if login auth success,display main menu and update level
                     $this->display_NDS_main_menu();
                     Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>3]);
+                }
+                else
+                {
+                    $this->screen_response="Invalid PIN,try again\n";
+                    $this->ussd_proceed($this->screen_response);
+                    //demote the user to level 2
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>2]);
                 }
                 break;
             default:
@@ -267,7 +280,7 @@ class FinanceController extends Controller
                 }
                 break;
             case 6:
-                $PIN=trim(htmlspecialchars($this->user_response));
+                $PIN=$this->user_response;
                 if(!empty($PIN))
                 {
                     //update PIN
@@ -334,7 +347,7 @@ class FinanceController extends Controller
         $this->screen_response.="3.Terms and Conditions\n";
         $this->screen_response.="99.EXIT";
 
-        echo $this->header;
+        $this->header;
         $this->ussd_proceed($this->screen_response);
     }
 
@@ -349,7 +362,7 @@ class FinanceController extends Controller
         $this->screen_response.="6.Loans\n";
         $this->screen_response.="99.MORE\n";
 
-        echo $this->header;
+        $this->header;
         $this->ussd_proceed($this->screen_response);
     }
     public function ussd_proceed($proceed)
