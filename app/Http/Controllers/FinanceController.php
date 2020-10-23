@@ -93,6 +93,7 @@ class FinanceController extends Controller
                     default:
                         //sth happens
                 }
+                break;
             case 1:
                 $username=strtolower(trim(htmlspecialchars($this->user_response)));
                 if(User::where('username','=',$username)->limit(1)->count()){
@@ -149,8 +150,8 @@ class FinanceController extends Controller
                         break;
                     default:
                         //do something here...
-
                 }
+                break;
             case 1:
                 switch ($this->user_response)
                 {
@@ -177,6 +178,7 @@ class FinanceController extends Controller
                         //demote user to level 0
                         Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>0]);
                 }
+                break;
             case 2:
                 //this level,the user has provided his/her firstname
                 $firstname=trim(htmlspecialchars($this->user_response));
@@ -197,6 +199,7 @@ class FinanceController extends Controller
                     //demote user to level 1
                     Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>1]);
                 }
+                break;
             case 3:
                 $middle_name=trim(htmlspecialchars($this->user_response));
 
@@ -218,6 +221,7 @@ class FinanceController extends Controller
                     //demote user to level 2
                     Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>2]);
                 }
+                break;
             case 4:
                 $lastname=trim(htmlspecialchars($this->user_response));
 
@@ -239,6 +243,7 @@ class FinanceController extends Controller
                     //demote user to level 2
                     Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>3]);
                 }
+                break;
             case 5:
                 $username=trim(htmlspecialchars($this->user_response));
                 if((!empty($username)) || (!is_numeric($username)))
@@ -259,6 +264,7 @@ class FinanceController extends Controller
                     //demote user to level 4
                     Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>4]);
                 }
+                break;
             case 6:
                 $PIN=trim(htmlspecialchars($this->user_response));
                 if(!empty($PIN))
