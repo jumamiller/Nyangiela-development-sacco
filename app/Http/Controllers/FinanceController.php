@@ -129,6 +129,7 @@ class FinanceController extends Controller
                     default:
                         $this->screen_response="Invalid choice,try again\n";
                         $this->ussd_proceed($this->screen_response);
+                        //demote user to level 0
                         Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>0]);
                 }
             case 2:
