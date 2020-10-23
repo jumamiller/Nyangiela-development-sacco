@@ -68,7 +68,7 @@ class FinanceController extends Controller
         if($visiting_user>0)
         {
             //let the user login to proceed
-            //$this->login();
+            $this->login();
         }
         else
         {
@@ -96,7 +96,7 @@ class FinanceController extends Controller
                 }
                 break;
             case 1:
-                $username=strtolower(trim(htmlspecialchars($this->user_response)));
+                $username=trim(htmlspecialchars($this->user_response));
                 if(User::where('username','=',$username)->limit(1)->count()){
                     //if username exists
                     $this->PIN();
@@ -112,7 +112,7 @@ class FinanceController extends Controller
                 break;
 
             case 2:
-                $personal_identifier=strtolower(trim(htmlspecialchars($this->screen_response)));
+                $personal_identifier=trim(htmlspecialchars($this->screen_response));
                 if(User::where('PIN','=',$personal_identifier)->count()){
                     //if login auth success,display main menu and update level
                     $this->display_NDS_main_menu();
@@ -273,7 +273,7 @@ class FinanceController extends Controller
                     //update PIN
                     User::where('phone_number','=',$this->phone_number)->update(['PIN'=>$PIN]);
                     //display the main menu(demote user to level 2
-                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>2]);
+                    Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>0]);
                 }
                 else
                 {
@@ -334,12 +334,24 @@ class FinanceController extends Controller
         $this->screen_response.="3.Terms and Conditions\n";
         $this->screen_response.="99.EXIT";
 
-        $this->header;
+        echo $this->header;
         $this->ussd_proceed($this->screen_response);
     }
 
     public function display_NDS_main_menu()
-    {}
+    {
+        $this->screen_response="<strong>Nyangiela Development Sacco Services</strong>\n";
+        $this->screen_response.="1.Account Enquiries\n";
+        $this->screen_response.="2.Transfer Funds\n";
+        $this->screen_response.="3.Send To Mpesa\n";
+        $this->screen_response.="4.Bill Payments\n";
+        $this->screen_response.="5.Airtime Purchase\n";
+        $this->screen_response.="6.Loans\n";
+        $this->screen_response.="99.MORE\n";
+
+        echo $this->header;
+        $this->ussd_proceed($this->screen_response);
+    }
     public function ussd_proceed($proceed)
     {
         echo "CON $proceed";
