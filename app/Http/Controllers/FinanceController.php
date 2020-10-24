@@ -54,6 +54,7 @@ class FinanceController extends Controller
     {
         //1.Check the level of the user from the DB and retain default level if none is found for this session
         $new_level=Session::where('phone_number',$this->phone_number)->pluck('session_level')->first();
+
         //dd($new_level);
 
         if(!empty($new_level)){
@@ -114,11 +115,9 @@ class FinanceController extends Controller
                 break;
 
             case 2:
-                $personal_identifier=$this->screen_response;
-                //select stmt
-                $user_pin=User::where('phone_number','=',$this->phone_number)->pluck('PIN')->first();
-                dd($personal_identifier);
-
+                $personal_identifier=(int)$this->user_response;
+                $user_pin=(int)User::where('phone_number','=',$this->phone_number)->pluck('PIN')->first();
+                //dd($user_pin);
                 if($user_pin==$personal_identifier){
                     //if login auth success,display main menu and update level
                     $this->display_NDS_main_menu();
