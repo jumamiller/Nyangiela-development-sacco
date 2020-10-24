@@ -25,11 +25,11 @@ class FinanceController extends Controller
      */
     private $session_id,$service_code,$phone_number,$text;
     private $AT_username, $AT_api_key;
-    private AfricasTalking $AT;
+    private $AT;
 
-    protected string $screen_response,$header;
+    protected $screen_response,$header;
     protected $text_array,$user_response;
-    protected int $level;
+    protected $level;
 
     public function __construct(Request $request){
         //get the POST request from AT
@@ -54,29 +54,21 @@ class FinanceController extends Controller
     {
         //1.Check the level of the user from the DB and retain default level if none is found for this session
         $new_level=Session::where('phone_number',$this->phone_number)->pluck('session_level')->first();
-
-        //dd($new_level);
-
         if(!empty($new_level)){
             $this->level=$new_level;
         }
-        //dd($this->level);
         //2.Check if the incoming phone number is registered(kind of login)
         $visiting_user=User::whereNotNull('PIN')->count();
-        //dd($visiting_user);
-
+        $visiting_user_phone=User::where('phone_number','=',$this->phone_number)->limit(1)->pluck('phone_number')->first();
         //3. Check if the user is available (yes)->Serve the menu(login user-finance based system for security); (no)->Register the user
-        if($visiting_user>0)
+        if($visiting_user>0 && !empty($visiting_user_phone))
         {
-            //let the user login to proceed
             $this->login();
         }
         else
         {
-            //register non existing users
             $this->user_registration();
         }
-
     }
     public function login()
     {
@@ -162,6 +154,8 @@ class FinanceController extends Controller
                         //display the registration form
                         $this->new_user_welcome_screen();
                         break;
+                    default:
+
                 }
                 break;
 
@@ -186,10 +180,11 @@ class FinanceController extends Controller
                         $this->exit_app();
                         break;
                     default:
-                        $this->screen_response="Invalid choice,try again\n";
+                        $this->screen_response="You have to register to access our services\n";
                         $this->ussd_proceed($this->screen_response);
-                        //demote user to level 0
-                        Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>0]);
+                        $this->firstname();
+                        Session::where('phone_number','=',$this->phone_number)->update(['session_level'=>2]);
+
                 }
                 break;
             case 2:
